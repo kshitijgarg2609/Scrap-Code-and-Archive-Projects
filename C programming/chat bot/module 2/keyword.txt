@@ -1,0 +1,12 @@
+ivr
+account
+transaction
+password
+OTP
+VisaMasterCard
+Visa
+re-set password
+HDFC
+Bank
+Card
+non-Visa

@@ -1,0 +1,2 @@
+Account related query
+ these are the basic Account related query one may ask
