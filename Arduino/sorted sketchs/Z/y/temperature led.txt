@@ -1,0 +1,46 @@
+int value;
+float volts,temp;
+
+void ()
+{
+pinMode(8,OUTPUT);//RED
+pinMode(9,OUTPUT);//GREEN
+pinMode(10,OUTPUT);//BLUE
+
+digitalWrite(8,LOW);//RED OFF
+digitalWrite(9,LOW);//GREEN OFF
+digitalWrite(10,LOW);//BLUE OFF
+}
+
+void loop()
+{
+
+value=analogRead(A0);          //read from A0
+volts=(value/1024.0)*5.0;      //conversion to volts
+temp= volts*100.0;             //conversion to temp Celsius
+//tempF=temp*9/5+32;
+delay(100);
+
+
+if(temp<10)
+{
+digitalWrite(8,HIGH);//RED ON
+digitalWrite(9,LOW);//GREEN OFF
+digitalWrite(10,LOW);//BLUE OFF
+}
+
+else if(temp>=10&&temp<=35)
+{
+digitalWrite(8,LOW);//RED OFF
+digitalWrite(9,HIGH);//GREEN ON
+digitalWrite(10,LOW);//BLUE OFF
+}
+
+else
+{
+digitalWrite(8,LOW);//RED OFF
+digitalWrite(9,LOW);//GREEN OFF
+digitalWrite(10,HIGH);//BLUE ON
+}
+
+}

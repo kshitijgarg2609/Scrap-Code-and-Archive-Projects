@@ -1,0 +1,40 @@
+Parking project memory set
+
+columns : angle(int),lowerlimit(float),upperlimit(float)
+
+angle : 6
+lower : 6
+upeerlimit : 6
+
+char "K"
+char "0"
+
+char "0"
+angle[0]
+lower[0]
+upper[0]
+
+char "1"
+angle[1]
+lower[1]
+upper[1]
+
+char "2"
+angle[2]
+lower[2]
+upper[2]
+
+char "3"
+angle[3]
+lower[3]
+upper[3]
+
+char "4"
+angle[4]
+lower[4]
+upper[4]
+
+char "5"
+angle[5]
+lower[5]
+upper[5]

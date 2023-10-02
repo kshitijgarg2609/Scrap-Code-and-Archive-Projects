@@ -1,0 +1,8 @@
+SD CARD ADAPTER
+RTS
+Display
+BME 200
+Waterflow
+lgzd
+ph sensor
+gps

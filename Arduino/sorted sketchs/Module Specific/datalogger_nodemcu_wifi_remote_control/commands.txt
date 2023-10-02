@@ -1,0 +1,15 @@
+config
+exit
+start logging
+stop logging
+set#device:<10>
+get#device
+set#wifi:<30>@<30>
+get#wifi
+set#firebase:<30>@<40>
+get#firebase
+set#interval:<9>
+get#interval
+on
+off
+reset#data

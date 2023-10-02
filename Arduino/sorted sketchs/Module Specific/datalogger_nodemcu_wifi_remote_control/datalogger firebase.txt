@@ -1,0 +1,17 @@
+config
+off
+set#device:K123456789
+set#wifi:sabka baap@sabkabaap2609
+set#firebase:datalogger-4ad3c@Ply89foRcQ0oAdYwUFaFC6Q8NDuSjS7k4J76cqdF
+set#interval:500
+on
+reset#data
+start logging
+exit
+
+
+get#device
+get#wifi
+get#firebase
+get#interval
+stop logging

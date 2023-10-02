@@ -1,0 +1,15 @@
+config
+exit
+start logging
+stop logging
+set#device:D123456789
+set#wifi:ssid@123456789
+set#firebase:fdb45@0123456789012345678901234567890123456789
+set#interval:800
+get#device
+get#wifi
+get#firebase
+get#interval
+on
+off
+reset#data

@@ -1,0 +1,30 @@
+uint8_t program_check;
+uint8_t conf;
+uint8_t wf;
+uint8_t lg;
+int dvc;
+int wssid;
+int wkey;
+int fdb;
+int fkey;
+int sec;
+
+void programCheck()
+void setConfig(boolean a)
+boolean getConfig()
+void setStat(boolean a)
+boolean getStat()
+void setProcessStat(boolean a)
+boolean getProcessStat()
+void setDeviceID(String a)
+String loadDeviceID()
+void setWFID(String a)
+String loadWFID()
+void setKey(String a)
+String loadKey()
+void setHost(String a)
+String loadHost()
+void setAuth(String a)
+String loadAuth()
+void setInterval(String a)
+String loadInterval()

@@ -1,0 +1,196 @@
+#include <ESP8266WiFi.h>
+#include <WiFiUDP.h>
+
+int temp_cnt=0;
+
+WiFiUDP udp;
+
+typedef struct packetinfo
+{
+  unsigned int p_cnt;
+  unsigned int plen;
+  unsigned int tlen;
+  uint8_t seq;
+  unsigned char pflg;
+}
+packetinfo;
+
+uint8_t indc=(uint8_t)('F');
+unsigned int pdiv=20;
+packetinfo pktinfo[20];
+uint8_t pkt[35];
+
+unsigned int pfrag_n;
+unsigned int pfrag_c;
+unsigned int total_plen;
+
+uint8_t pkt_id[4];
+
+unsigned int p_indx;
+
+void setup()
+{
+  Serial.begin(115200);
+  WiFi.begin("sabka baap","sabkabaap2609");
+  udp.begin(4210);
+  delay(4);
+  Serial.println(WiFi.localIP());
+}
+
+void loop()
+{
+  int i=udp.parsePacket();
+  if(i>0)
+  {
+    uint8_t rdata[i];
+    udp.read(rdata,i);
+    initPacketDivider(i);
+    for(int j=0;j<i;j++)
+    {
+      writePacket(rdata[j]);
+    }
+  }
+}
+
+void initPacketDivider(unsigned int a)
+{
+  total_plen=a;
+  pfrag_c=-1;
+  //free(pktinfo);
+  unsigned long tstamp=millis();
+  pkt_id[0]=(uint8_t)(tstamp>>24);
+  pkt_id[1]=(uint8_t)(tstamp>>16);
+  pkt_id[2]=(uint8_t)(tstamp>>8);
+  pkt_id[3]=(uint8_t)(tstamp);
+  Serial.println("Packet ...");
+  Serial.println(String((byte)(pkt_id[0])));
+  Serial.println(String((byte)(pkt_id[1])));
+  Serial.println(String((byte)(pkt_id[2])));
+  Serial.println(String((byte)(pkt_id[3])));
+  if(a>=pdiv)
+  {
+    float temp_len=a;
+    pfrag_n=ceil(temp_len/pdiv);
+    Serial.println("Count :- "+String(temp_cnt));
+    temp_cnt++;
+    Serial.println("Check (pfrag_n) :- "+String(pfrag_n));
+    //pktinfo=(packetinfo*)malloc(pfrag_n*sizeof(packetinfo));
+    //pktinfo[pfrag_n];
+    for(unsigned int i=0;i<pfrag_n;i++)
+    {
+      pktinfo[i].seq=(uint8_t)(i);
+      pktinfo[i].p_cnt=0;
+      if(i==0)
+      {
+        pktinfo[i].plen=pdiv;
+        pktinfo[i].tlen=pktinfo[i].plen+7+4;
+        pktinfo[i].pflg='F';
+      }
+      else if(i==pfrag_n-1)
+      {
+        pktinfo[i].plen=(a%pdiv);
+        pktinfo[i].tlen=pktinfo[i].plen+5+4;
+        pktinfo[i].pflg='L';
+      }
+      else
+      {
+        pktinfo[i].plen=pdiv;
+        pktinfo[i].tlen=pktinfo[i].plen+5+4;
+        pktinfo[i].pflg='M';
+      }
+    }
+  }
+  else
+  {
+    Serial.println("test");
+    pfrag_n=1;
+    //pktinfo=(packetinfo*)malloc(sizeof(packetinfo));
+    //pktinfo[1];
+    pktinfo[0].p_cnt=0;
+    pktinfo[0].seq=(uint8_t)(0);
+    pktinfo[0].plen=a;
+    pktinfo[0].tlen=pktinfo[0].plen+4;
+    pktinfo[0].pflg='N';
+  }
+  readyPacket();
+}
+
+void readyPacket()
+{
+   //free(pkt);
+   //pkt=NULL;
+   pfrag_c++;
+   //udp.beginPacket(udp.remoteIP(),udp.remotePort());
+   //pkt=(uint8_t*)malloc(pktinfo[pfrag_c].tlen*sizeof(uint8_t));
+   //pkt[pktinfo[pfrag_c].tlen];
+   p_indx=0;
+   pkt[0]=indc;
+   if(pktinfo[pfrag_c].pflg=='F')
+   {
+      pkt[1]=(uint8_t)('F');
+      pkt[2]=pkt_id[0];
+      pkt[3]=pkt_id[1];
+      pkt[4]=pkt_id[2];
+      pkt[5]=pkt_id[3];
+      pkt[6]=pktinfo[pfrag_c].seq;
+      pkt[7]=(uint8_t)(total_plen/256);
+      pkt[8]=(uint8_t)(total_plen%256);
+      pkt[9]=(uint8_t)(pktinfo[pfrag_c].plen/256);
+      pkt[10]=(uint8_t)(pktinfo[pfrag_c].plen%256);
+      p_indx=11;
+   }
+   else if(pktinfo[pfrag_c].pflg=='L')
+   {
+      pkt[1]=(uint8_t)('L');
+      pkt[2]=pkt_id[0];
+      pkt[3]=pkt_id[1];
+      pkt[4]=pkt_id[2];
+      pkt[5]=pkt_id[3];
+      pkt[6]=pktinfo[pfrag_c].seq;
+      pkt[7]=(uint8_t)(pktinfo[pfrag_c].plen/256);
+      pkt[8]=(uint8_t)(pktinfo[pfrag_c].plen%256);
+      p_indx=9;
+   }
+   else if(pktinfo[pfrag_c].pflg=='M')
+   {
+      pkt[1]=(uint8_t)('M');
+      pkt[2]=pkt_id[0];
+      pkt[3]=pkt_id[1];
+      pkt[4]=pkt_id[2];
+      pkt[5]=pkt_id[3];
+      pkt[6]=pktinfo[pfrag_c].seq;
+      pkt[7]=(uint8_t)(pktinfo[pfrag_c].plen/256);
+      pkt[8]=(uint8_t)(pktinfo[pfrag_c].plen%256);
+      p_indx=9;
+   }
+   else if(pktinfo[pfrag_c].pflg=='N')
+   {
+      Serial.println("test 2");
+      pkt[1]=(uint8_t)('N');
+      pkt[2]=(uint8_t)(pktinfo[pfrag_c].plen/256);
+      pkt[3]=(uint8_t)(pktinfo[pfrag_c].plen%256);
+      p_indx=4;
+   }
+}
+
+void writePacket(uint8_t a)
+{
+  if(pfrag_c>=pfrag_n)
+  {
+    return;
+  }
+  pkt[p_indx++]=a;
+  pktinfo[pfrag_c].p_cnt++;
+  if(pktinfo[pfrag_c].p_cnt==pktinfo[pfrag_c].plen)
+  {
+    udp.beginPacket(udp.remoteIP(),udp.remotePort());
+    udp.write(pkt,pktinfo[pfrag_c].tlen);
+    udp.endPacket();
+    delay(1);
+    //pkt=NULL;
+    if(pfrag_c!=pfrag_n-1)
+    {
+      readyPacket();
+    }
+  }
+}
